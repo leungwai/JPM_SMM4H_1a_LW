@@ -1,4 +1,4 @@
 task7_labels_to_ids = {
-    '0' : 0, 
-    '1' :1
+    'NoADE' : 0, 
+    'ADE' :1
 }

@@ -9,23 +9,22 @@ def load_data(filename):
     return output
 
 def read_task7(location, split = 'train'):
-    filename = location + split + '.csv'
+    filename = location + split + '.tsv'
 
     data = []
     with open(filename) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
+        csv_reader = csv.reader(csv_file, delimiter='\t')
         for i, row in enumerate(csv_reader):
             if i > 0:
-                tweet_id = row[0]
-                sentence = row[1].strip()
-                label = row[2]
+                tweet_id = row[1]
+                sentence = row[4].strip()
+                label = row[3]
                 data.append((sentence, label))
-
     return data
 
 
 if __name__ == '__main__':
-    location = '../Datasets/TASK7/'
+    location = '../Datasets/Subtask_1a/training'
     split = 'train'
     
     data = read_task7(location, split)

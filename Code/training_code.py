@@ -139,7 +139,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
     initialization_input = (max_len, batch_size)
 
     #Reading datasets and initializing data loaders
-    dataset_location = '../Datasets/TASK7/'
+    dataset_location = '../Datasets/Subtask_1a/training/'
 
     train_data = read_task7(dataset_location , split = 'train')
     dev_data = read_task7(dataset_location , split = 'dev')
