@@ -209,19 +209,39 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
 
 
 if __name__ == '__main__':
-    n_epochs = 10
+    n_epochs = 1
     models = ['bert-base-uncased', 'roberta-base']
     
     #model saving parameters
     model_save_flag = True
     model_load_flag = False
 
+    #setting up the arrays to save data for all loops, models, and epochs
+    all_best_dev_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_dev_acc")
+    all_best_test_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_test_acc")
+    all_best_tb_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_test_acc")
+    all_best_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_epoch")
+    all_best_tb_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_tb_epoch")
+
 
     for model_name in models:
 
-        model_save_location = '../saved_models_1a/' + model_name
-        model_load_location = None
+        for loop_index in range(5):
+            print('Running loop', loop_index, ': \n')
+            model_save_location = '../saved_models_1a/' + model_name
+            model_load_location = None
 
-        best_dev_acc, best_test_acc, best_tb_acc, best_epoch, best_tb_epoch = main(n_epochs, model_name, model_save_flag, model_save_location, model_load_flag, model_load_location)
+            best_dev_acc, best_test_acc, best_tb_acc, best_epoch, best_tb_epoch = main(n_epochs, model_name, model_save_flag, model_save_location, model_load_flag, model_load_location)
+
+            all_best_dev_acc.at[loop_index, model_name] = best_dev_acc
+            all_best_test_acc.at[loop_index, model_name] = best_test_acc
+            all_best_tb_acc.at[loop_index, model_name] = best_tb_acc
+            all_best_epoch.at[loop_index, model_name] = best_epoch
+            all_best_tb_epoch.at[loop_index, model_name] = best_tb_epoch
+
+    
+            
+
+            
 
 
