@@ -5,7 +5,7 @@ from torch import cuda
 from torch.utils.data import Dataset, DataLoader
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, f1_score, precision_score, recall_score
 from load_data import initialize_data
 from reading_datasets import read_task
 from labels_to_ids import task7_labels_to_ids
@@ -16,7 +16,9 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0"
 def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_grad_norm = 10):
     tr_loss, tr_accuracy = 0, 0
     nb_tr_examples, nb_tr_steps = 0, 0
+    tr_f1_score, tr_precision, tr_recall = 0, 0, 0
     tr_preds, tr_labels = [], []
+
     # put model in training mode
     model.train()
     optimizer.zero_grad()
@@ -31,6 +33,9 @@ def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_g
 
         #loss, tr_logits = model(input_ids=ids, attention_mask=mask, labels=labels)
         output = model(input_ids=ids, attention_mask=mask, labels=labels)
+        # print('Training Output: \n')
+        # print(output)
+        # print('\n ----------------------- \n')
         tr_loss += output[0]
 
         nb_tr_steps += 1
@@ -53,6 +58,26 @@ def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_g
 
         tmp_tr_accuracy = accuracy_score(labels.cpu().numpy(), predictions.cpu().numpy())
         tr_accuracy += tmp_tr_accuracy
+
+        # calculating the f1_score for ADE label
+        tmp_tr_f1_score = f1_score(labels.cpu().numpy(), predictions.cpu().numpy(), pos_label=1)
+        tr_f1_score += tmp_tr_f1_score
+        # print("tmp f1: ", tmp_tr_f1_score)
+
+        # calculating the precision for ADE label
+        tmp_tr_precision = precision_score(labels.cpu().numpy(), predictions.cpu().numpy(), pos_label=1) 
+        tr_precision += tmp_tr_precision
+        # print("\n tmp precision: ", tmp_tr_precision)
+
+        # calculating the recall for ADE label 
+        tmp_tr_recall = recall_score(labels.cpu().numpy(), predictions.cpu().numpy(), pos_label=1)
+        tr_recall += tmp_tr_recall
+        # print("\n tmp recall: ", tmp_tr_recall)
+
+        # debugging - computing the accuracy report
+        # tmp_tr_accuracy_report = classification_report(labels.cpu().numpy(), predictions.cpu().numpy())
+        # print("\n Classification Report: \n")
+        # print(tmp_tr_accuracy_report)
     
         # gradient clipping
         torch.nn.utils.clip_grad_norm_(
@@ -67,10 +92,13 @@ def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_g
 
     epoch_loss = tr_loss / nb_tr_steps
     tr_accuracy = tr_accuracy / nb_tr_steps
-    #print(f"Training loss epoch: {epoch_loss}")
-    #print(f"Training accuracy epoch: {tr_accuracy}")
+    tr_f1_score = tr_f1_score / nb_tr_steps
+    tr_precision = tr_precision / nb_tr_steps
+    tr_recall = tr_recall / nb_tr_steps
+    
+    
 
-    return model
+    return model, tr_f1_score, tr_precision, tr_recall
 
 
 def testing(model, testing_loader, labels_to_ids, device):
@@ -80,6 +108,7 @@ def testing(model, testing_loader, labels_to_ids, device):
     eval_loss, eval_accuracy = 0, 0
     nb_eval_examples, nb_eval_steps = 0, 0
     eval_preds, eval_labels = [], []
+    eval_f1_score, eval_precision, eval_recall = 0, 0, 0
     
     ids_to_labels = dict((v,k) for k,v in labels_to_ids.items())
 
@@ -101,7 +130,7 @@ def testing(model, testing_loader, labels_to_ids, device):
             if idx % 100==0:
                 loss_step = eval_loss/nb_eval_steps
                 print(f"Validation loss per 100 evaluation steps: {loss_step}")
-              
+            
             # compute evaluation accuracy
             flattened_targets = labels.view(-1) # shape (batch_size * seq_len,)
             active_logits = output[1].view(-1, model.num_labels) # shape (batch_size * seq_len, num_labels)
@@ -119,15 +148,31 @@ def testing(model, testing_loader, labels_to_ids, device):
             tmp_eval_accuracy = accuracy_score(labels.cpu().numpy(), predictions.cpu().numpy())
             eval_accuracy += tmp_eval_accuracy
 
+            # calculating the f1_score for ADE label
+            tmp_eval_f1_score = f1_score(labels.cpu().numpy(), predictions.cpu().numpy(), pos_label=1)
+            eval_f1_score += tmp_eval_f1_score
+            # print("tmp f1: ", tmp_eval_f1_score)
+
+            # calculating the precision for ADE label
+            tmp_eval_precision = precision_score(labels.cpu().numpy(), predictions.cpu().numpy(), pos_label=1) 
+            eval_precision += tmp_eval_precision
+            # print("\n tmp precision: ", tmp_eval_precision)
+
+            # calculating the recall for ADE label 
+            tmp_eval_recall = recall_score(labels.cpu().numpy(), predictions.cpu().numpy(), pos_label=1)
+            eval_recall += tmp_eval_recall
+            # print("\n tmp recall: ", tmp_eval_recall)
+
     labels = [ids_to_labels[id.item()] for id in eval_labels]
     predictions = [ids_to_labels[id.item()] for id in eval_preds]
     
     eval_loss = eval_loss / nb_eval_steps
     eval_accuracy = eval_accuracy / nb_eval_steps
-    #print(f"Validation Loss: {eval_loss}")
-    #print(f"Validation Accuracy: {eval_accuracy}")
+    eval_f1_score = eval_f1_score / nb_eval_steps
+    eval_precision = eval_precision / nb_eval_steps
+    eval_recall = eval_recall / nb_eval_steps
 
-    return labels, predictions, eval_accuracy
+    return labels, predictions, eval_accuracy, eval_f1_score, eval_precision, eval_recall
 
 
 def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_flag, model_load_location):
@@ -168,16 +213,23 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
     best_epoch = -1
     best_tb_acc = 0
     best_tb_epoch = -1
+    best_f1_score = 0
+    best_precision = 0
+    best_recall = 0
+
     for epoch in range(n_epochs):
         start = time.time()
         print(f"Training epoch: {epoch + 1}")
 
         #train model
-        model = train(epoch, train_loader, model, optimizer, device, grad_step)
+        model, tr_f1_score, tr_precision, tr_recall = train(epoch, train_loader, model, optimizer, device, grad_step)
         
         #testing and logging
-        labels_dev, predictions_dev, dev_accuracy = testing(model, dev_loader, labels_to_ids, device)
+        labels_dev, predictions_dev, dev_accuracy, dev_f1_score, dev_precision, dev_recall = testing(model, dev_loader, labels_to_ids, device)
         print('DEV ACC:', dev_accuracy)
+        print('DEV F1:', def_f1_score)
+        print('DEV PRECISION:', dev_precision)
+        print('DEV RECALL:', dev_recall)
         
         #labels_test, predictions_test, test_accuracy = testing(model, test_loader, labels_to_ids, device)
         #print('TEST ACC:', test_accuracy)
@@ -185,6 +237,10 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
         #saving model
         if dev_accuracy > best_dev_acc:
             best_dev_acc = dev_accuracy
+            best_f1_score = dev_f1_score
+            best_precision = dev_precision
+            best_recall = dev_recall
+
             #best_test_acc = test_accuracy
             best_epoch = epoch
             
@@ -199,10 +255,13 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
 
         now = time.time()
         print('BEST ACCURACY --> ', 'DEV:', round(best_dev_acc, 5))
+        print('BEST F1 --> ', 'DEV:', round(best_f1_score, 5))
+        print('BEST PRECISION --> ', 'DEV:', round(best_precision, 5))
+        print('BEST RECALL --> ', 'DEV:', round(best_recall, 5))
         print('TIME PER EPOCH:', (now-start)/60 )
         print()
 
-    return best_dev_acc, best_test_acc, best_tb_acc, best_epoch, best_tb_epoch
+    return best_dev_acc, best_test_acc, best_tb_acc, best_epoch, best_tb_epoch, best_f1_score, best_precision, best_recall
 
 
 
@@ -217,27 +276,33 @@ if __name__ == '__main__':
     model_load_flag = False
 
     #setting up the arrays to save data for all loops, models, and epochs
-    all_best_dev_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_dev_acc")
-    all_best_test_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_test_acc")
-    all_best_tb_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_test_acc")
-    all_best_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_epoch")
-    all_best_tb_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models).set_caption("all_best_tb_epoch")
+    all_best_dev_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_test_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_tb_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_tb_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_f1_score = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_precision = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_recall = pd.DataFrame(index=[0,1,2,3,4], columns=models)
 
 
     for model_name in models:
 
-        for loop_index in range(5):
+        for loop_index in range(2):
             print('Running loop', loop_index, ': \n')
             model_save_location = '../saved_models_1a/' + model_name
             model_load_location = None
 
-            best_dev_acc, best_test_acc, best_tb_acc, best_epoch, best_tb_epoch = main(n_epochs, model_name, model_save_flag, model_save_location, model_load_flag, model_load_location)
+            best_dev_acc, best_test_acc, best_tb_acc, best_epoch, best_tb_epoch, best_f1_score, best_precision, best_recall = main(n_epochs, model_name, model_save_flag, model_save_location, model_load_flag, model_load_location)
 
             all_best_dev_acc.at[loop_index, model_name] = best_dev_acc
             all_best_test_acc.at[loop_index, model_name] = best_test_acc
             all_best_tb_acc.at[loop_index, model_name] = best_tb_acc
             all_best_epoch.at[loop_index, model_name] = best_epoch
             all_best_tb_epoch.at[loop_index, model_name] = best_tb_epoch
+            all_best_f1_score.at[loop_index, model_name] = best_f1_score
+            all_best_precision.at[loop_index, model_name] = best_precision
+            all_best_recall.at[loop_index, model_name] = best_recall
 
     
             
