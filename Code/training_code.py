@@ -15,8 +15,9 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_grad_norm = 10):
     tr_loss, tr_accuracy = 0, 0
-    nb_tr_examples, nb_tr_steps = 0, 0
     tr_f1_score, tr_precision, tr_recall = 0, 0, 0
+
+    nb_tr_examples, nb_tr_steps = 0, 0
     tr_preds, tr_labels = [], []
 
     # put model in training mode
@@ -31,11 +32,8 @@ def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_g
         if (idx + 1) % 20 == 0:
             print('FINSIHED BATCH:', idx, 'of', len(training_loader))
 
-        #loss, tr_logits = model(input_ids=ids, attention_mask=mask, labels=labels)
         output = model(input_ids=ids, attention_mask=mask, labels=labels)
-        # print('Training Output: \n')
-        # print(output)
-        # print('\n ----------------------- \n')
+       
         tr_loss += output[0]
 
         nb_tr_steps += 1
@@ -92,11 +90,10 @@ def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_g
 
     epoch_loss = tr_loss / nb_tr_steps
     tr_accuracy = tr_accuracy / nb_tr_steps
+    
     tr_f1_score = tr_f1_score / nb_tr_steps
     tr_precision = tr_precision / nb_tr_steps
     tr_recall = tr_recall / nb_tr_steps
-    
-    
 
     return model, tr_f1_score, tr_precision, tr_recall
 
@@ -106,9 +103,11 @@ def testing(model, testing_loader, labels_to_ids, device):
     model.eval()
     
     eval_loss, eval_accuracy = 0, 0
+    eval_f1_score, eval_precision, eval_recall = 0, 0, 0
+
     nb_eval_examples, nb_eval_steps = 0, 0
     eval_preds, eval_labels = [], []
-    eval_f1_score, eval_precision, eval_recall = 0, 0, 0
+    
     
     ids_to_labels = dict((v,k) for k,v in labels_to_ids.items())
 
@@ -213,6 +212,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
     best_epoch = -1
     best_tb_acc = 0
     best_tb_epoch = -1
+    
     best_f1_score = 0
     best_precision = 0
     best_recall = 0
@@ -227,7 +227,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
         #testing and logging
         labels_dev, predictions_dev, dev_accuracy, dev_f1_score, dev_precision, dev_recall = testing(model, dev_loader, labels_to_ids, device)
         print('DEV ACC:', dev_accuracy)
-        print('DEV F1:', def_f1_score)
+        print('DEV F1:', dev_f1_score)
         print('DEV PRECISION:', dev_precision)
         print('DEV RECALL:', dev_recall)
         
@@ -237,6 +237,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
         #saving model
         if dev_accuracy > best_dev_acc:
             best_dev_acc = dev_accuracy
+           
             best_f1_score = dev_f1_score
             best_precision = dev_precision
             best_recall = dev_recall
@@ -268,7 +269,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
 
 
 if __name__ == '__main__':
-    n_epochs = 1
+    n_epochs = 10
     models = ['bert-base-uncased', 'roberta-base']
     
     #model saving parameters
