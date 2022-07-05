@@ -17,9 +17,23 @@ def read_task(location, split = 'train'):
         for i, row in enumerate(csv_reader):
             if i > 0:
                 tweet_id = row[0]
-                sentence = row[3].strip()
-                label = row[2]
+                sentence = row[2].strip()
+                label = row[1]
                 data.append((tweet_id, sentence, label))
+    return data
+
+def read_test(location, split = 'test'):
+    filename = location + split + '.tsv'
+
+    data = []
+    with open(filename) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter='\t')
+        for i, row in enumerate(csv_reader):
+            if i > 0:
+                tweet_id = row[0]
+                sentence = row[2].strip()
+                data.append((tweet_id, sentence))
+
     return data
 
 
