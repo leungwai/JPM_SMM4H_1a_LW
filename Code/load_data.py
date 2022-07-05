@@ -40,8 +40,6 @@ class dataset(Dataset):
         
         return item
 
-        return item
-
   def __len__(self):
         return self.len
 
