@@ -218,6 +218,7 @@ def testing(model, testing_loader, labels_to_ids, device):
             # eval_labels.extend(labels)
             # print()
             # print(predictions.cpu().numpy())
+            print(predictions)
             eval_preds.extend(predictions)
 
             eval_tweet_ids.extend(tweet_ids)
@@ -353,7 +354,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
 
 
 if __name__ == '__main__':
-    n_epochs = 10
+    n_epochs = 1
     models = ['bert-base-uncased', 'roberta-base']
     
     #model saving parameters
@@ -375,7 +376,7 @@ if __name__ == '__main__':
     all_best_precision = pd.DataFrame(index=[0,1,2,3,4], columns=models)
     all_best_recall = pd.DataFrame(index=[0,1,2,3,4], columns=models)
 
-    for loop_index in range(5):
+    for loop_index in range(1):
         for model_name in models:
             print('Running loop', loop_index)
             print()
