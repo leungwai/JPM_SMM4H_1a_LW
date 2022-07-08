@@ -51,7 +51,7 @@ def initialize_data(tokenizer, initialization_input, input_data, labels_to_ids, 
 
 
     params = {'batch_size': batch_size,
-                'shuffle': True,
+                'shuffle': shuffle,
                 'num_workers': 4
                 }
 
@@ -60,13 +60,13 @@ def initialize_data(tokenizer, initialization_input, input_data, labels_to_ids, 
     return loader
     
 
-def initialize_test(tokenizer, initialization_input, input_data, labels_to_ids, shuffle = True):
+def initialize_test(tokenizer, initialization_input, input_data, labels_to_ids, shuffle = False):
     max_len, batch_size = initialization_input
     data_split = dataset(input_data, tokenizer, labels_to_ids, max_len, False)
 
 
     params = {'batch_size': batch_size,
-                'shuffle': True,
+                'shuffle': shuffle,
                 'num_workers': 4
                 }
 
