@@ -49,7 +49,7 @@ def main(model_load_location, report_result_save_location):
 
     # Run the model with unshuffled testing data
     test_result, test_labels, test_predictions, test_accuracy, test_f1, test_precision, test_recall, test_overall_cr_df, test_overall_cm_df = validate(model, test_loader, labels_to_ids, device)
-
+    
     print('DEV ACC:', test_accuracy)
 
     print(' ')
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     all_precision = pd.DataFrame(index=[0,1,2,3,4], columns=models)
     all_recall = pd.DataFrame(index=[0,1,2,3,4], columns=models)
 
-    for loop_index in range(1):
+    for loop_index in range(5):
         for model_name in models:
             test_print_statement = 'Testing ' + model_name + ' from loop ' + str(loop_index)
             print(test_print_statement)

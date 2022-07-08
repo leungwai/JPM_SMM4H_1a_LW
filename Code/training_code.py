@@ -138,6 +138,8 @@ def validate(model, testing_loader, labels_to_ids, device):
 
             tmp_eval_recall = recall_score(labels.cpu().numpy(), predictions.cpu().numpy(), labels=[1], average=None)[0]
             eval_recall += tmp_eval_recall
+
+
     num_labels = [id.item() for id in eval_labels]
     num_predictions = [id.item() for id in eval_preds]
 
@@ -296,7 +298,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
             best_dev_acc = dev_accuracy
             best_f1 = dev_f1
             best_precision = dev_precision
-            best_recall = best_recall
+            best_recall = dev_recall
 
             #best_test_acc = test_accuracy
             best_epoch = epoch
@@ -327,7 +329,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
 
 if __name__ == '__main__':
     train_val_start_time = time.time()
-    n_epochs = 1
+    n_epochs = 10
     models = ['bert-base-uncased', 'roberta-base']
     
     #model saving parameters
@@ -350,7 +352,7 @@ if __name__ == '__main__':
     all_best_recall = pd.DataFrame(index=[0,1,2,3,4], columns=models)
 
 
-    for loop_index in range(1):
+    for loop_index in range(5):
         for model_name in models:
             print('Running loop', loop_index)
             print()
