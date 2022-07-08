@@ -111,11 +111,11 @@ if __name__ == '__main__':
 
             print("\n Testing results")
             print(test_result)
-            formatted_test_result = test_result.drop(columns=['text'])
+            formatted_test_result = test_result.drop(columns=['text', 'Orig'])
 
             os.makedirs(result_save_location, exist_ok=True)
             test_result.to_csv(unformatted_result_save_location, sep='\t', index=False)
-            formatted_test_result.to_csv(formatted_result_save_location, sep='\t', index=False)
+            formatted_test_result.to_csv(formatted_result_save_location, sep='\t', index=False, header=False)
 
             print("Result files saved")
 
