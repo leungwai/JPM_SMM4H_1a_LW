@@ -73,19 +73,20 @@ def main(model_load_location, report_result_save_location):
 
 if __name__ == '__main__':
     n_epochs = 1
+    n_rounds = 5
     models = ['bert-base-uncased', 'roberta-base']
 
     # setting up the arrays to save data for all loops, models,
 
     # dev and test acc
-    all_test_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_test_acc = pd.DataFrame(index=range(n_rounds), columns=models)
 
     # factors to calculate final f1 performance metric
-    all_f1_score = pd.DataFrame(index=[0,1,2,3,4], columns=models)
-    all_precision = pd.DataFrame(index=[0,1,2,3,4], columns=models)
-    all_recall = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_f1_score = pd.DataFrame(index=range(n_rounds), columns=models)
+    all_precision = pd.DataFrame(index=range(n_rounds), columns=models)
+    all_recall = pd.DataFrame(index=range(n_rounds), columns=models)
 
-    for loop_index in range(5):
+    for loop_index in range(n_rounds):
         for model_name in models:
             test_print_statement = 'Testing ' + model_name + ' from loop ' + str(loop_index)
             print(test_print_statement)
@@ -141,6 +142,8 @@ if __name__ == '__main__':
     all_recall.to_csv('../testing_statistics/all_recall.tsv', sep='\t')     
 
     print("Everything successfully completed")
+
+    
 
 
 

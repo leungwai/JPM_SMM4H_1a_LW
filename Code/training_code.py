@@ -220,7 +220,7 @@ def testing(model, testing_loader, labels_to_ids, device):
 def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_flag, model_load_location, report_result_save_location):
     #Initialization training parameters
     max_len = 256
-    batch_size = 32
+    batch_size = 10
     grad_step = 1
     learning_rate = 1e-05
     initialization_input = (max_len, batch_size)
@@ -260,7 +260,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
     best_precision = 0
     best_recall = 0
 
-    all_epoch_data = pd.DataFrame(index=[0,1,2,3,4,5,6,7,8,9], columns=['dev_accuracy', 'dev_f1', 'dev_precision', 'dev_recall'])
+    all_epoch_data = pd.DataFrame(index=range(n_epochs), columns=['dev_accuracy', 'dev_f1', 'dev_precision', 'dev_recall'])
 
     best_overall_prediction_data = []
 
@@ -294,7 +294,7 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
         dev_overall_cm_df.to_csv(cm_df_location, sep='\t')
 
         #saving model
-        if dev_accuracy > best_dev_acc:
+        if dev_f1 > best_f1:
             best_dev_acc = dev_accuracy
             best_f1 = dev_f1
             best_precision = dev_precision
@@ -329,8 +329,9 @@ def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_
 
 if __name__ == '__main__':
     train_val_start_time = time.time()
-    n_epochs = 10
-    models = ['bert-base-uncased', 'roberta-base']
+    n_epochs = 15
+    n_rounds = 5
+    models = ['bert-large-uncased', 'roberta-large']
     
     #model saving parameters
     model_save_flag = True
@@ -338,34 +339,34 @@ if __name__ == '__main__':
 
     # setting up the arrays to save data for all loops, models, and epochs
     # accuracy
-    all_best_dev_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models)
-    all_best_test_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models)
-    all_best_tb_acc = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_dev_acc = pd.DataFrame(index=range(n_rounds), columns=models)
+    all_best_test_acc = pd.DataFrame(index=range(n_rounds), columns=models)
+    all_best_tb_acc = pd.DataFrame(index=range(n_rounds), columns=models)
     
     # epoch
-    all_best_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models)
-    all_best_tb_epoch = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_epoch = pd.DataFrame(index=range(n_rounds), columns=models)
+    all_best_tb_epoch = pd.DataFrame(index=range(n_rounds), columns=models)
 
     # factors to calculate final f1 performance metric
-    all_best_f1_score = pd.DataFrame(index=[0,1,2,3,4], columns=models)
-    all_best_precision = pd.DataFrame(index=[0,1,2,3,4], columns=models)
-    all_best_recall = pd.DataFrame(index=[0,1,2,3,4], columns=models)
+    all_best_f1_score = pd.DataFrame(index=range(n_rounds), columns=models)
+    all_best_precision = pd.DataFrame(index=range(n_rounds), columns=models)
+    all_best_recall = pd.DataFrame(index=range(n_rounds), columns=models)
 
 
-    for loop_index in range(5):
+    for loop_index in range(n_rounds):
         for model_name in models:
             print('Running loop', loop_index)
             print()
 
-            model_save_location = '../saved_models_1a/' + model_name + '/' + str(loop_index) + '/' 
+            model_save_location = '../15_epochs_large_model/saved_models_1a/' + model_name + '/' + str(loop_index) + '/' 
             model_load_location = None
 
-            epoch_save_location = '../saved_epoch_1a/' + model_name + '/' + str(loop_index) + '/' 
+            epoch_save_location = '../15_epochs_large_model/saved_epoch_1a/' + model_name + '/' + str(loop_index) + '/' 
             epoch_save_name = epoch_save_location + '/epoch_info.tsv'
 
-            result_save_location = '../saved_data_1a/' + model_name + '/' + str(loop_index) + '/'
+            result_save_location = '../15_epochs_large_model/saved_data_1a/' + model_name + '/' + str(loop_index) + '/'
 
-            report_result_save_location = '../saved_report_1a/' + model_name + '/' + str(loop_index)
+            report_result_save_location = '../15_epochs_large_model/saved_report_1a/' + model_name + '/' + str(loop_index)
 
             unformatted_result_save_location = result_save_location + 'unformatted_result.tsv'
             formatted_result_save_location = result_save_location + 'formatted_result.tsv'
@@ -417,16 +418,21 @@ if __name__ == '__main__':
 
     #saving all results into tsv
 
-    os.makedirs('../validating_statistics/', exist_ok=True)
-    all_best_dev_acc.to_csv('../validating_statistics/all_best_dev_acc.tsv', sep='\t')
-    all_best_f1_score.to_csv('../validating_statistics/all_best_f1_score.tsv', sep='\t')
-    all_best_precision.to_csv('../validating_statistics/all_best_precision.tsv', sep='\t')
-    all_best_recall.to_csv('../validating_statistics/all_best_recall.tsv', sep='\t')
+    os.makedirs('../15_epochs_large_model/validating_statistics/', exist_ok=True)
+    all_best_dev_acc.to_csv('../15_epochs_large_model/validating_statistics/all_best_dev_acc.tsv', sep='\t')
+    all_best_f1_score.to_csv('../15_epochs_large_model/validating_statistics/all_best_f1_score.tsv', sep='\t')
+    all_best_precision.to_csv('../15_epochs_large_model/validating_statistics/all_best_precision.tsv', sep='\t')
+    all_best_recall.to_csv('../15_epochs_large_model/validating_statistics/all_best_recall.tsv', sep='\t')
 
     train_val_end_time = time.time()
 
     total_time = (train_val_end_time - train_val_start_time) / 60
     print("Everything successfully completed")
     print("Time to complete:", total_time)
+
+    with open('../15_epochs_large_model/validating_statistics/time.txt', 'w') as file:
+        file.write("Time to complete: ")
+        file.write(str(total_time))
+        file.write(" mins")
 
 
