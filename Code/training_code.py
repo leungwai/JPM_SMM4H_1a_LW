@@ -13,7 +13,7 @@ import time
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
-def train(epoch, training_loader, model, optimizer, device, grad_step = 1, max_grad_norm = 10):
+def train(epoch, training_loader, model, optimizer, device, grad_step = 4, max_grad_norm = 10):
     tr_loss, tr_accuracy = 0, 0
     nb_tr_examples, nb_tr_steps = 0, 0
     tr_preds, tr_labels = [], []
@@ -220,8 +220,8 @@ def testing(model, testing_loader, labels_to_ids, device):
 def main(n_epochs, model_name, model_save_flag, model_save_location, model_load_flag, model_load_location, report_result_save_location):
     #Initialization training parameters
     max_len = 256
-    batch_size = 10
-    grad_step = 1
+    batch_size = 8
+    grad_step = 4
     learning_rate = 1e-05
     initialization_input = (max_len, batch_size)
 
@@ -358,15 +358,15 @@ if __name__ == '__main__':
             print('Running loop', loop_index)
             print()
 
-            model_save_location = '../15_epochs_large_model/saved_models_1a/' + model_name + '/' + str(loop_index) + '/' 
+            model_save_location = '../2nd_try_15_epochs_large_model/saved_models_1a/' + model_name + '/' + str(loop_index) + '/' 
             model_load_location = None
 
-            epoch_save_location = '../15_epochs_large_model/saved_epoch_1a/' + model_name + '/' + str(loop_index) + '/' 
+            epoch_save_location = '../2nd_try_15_epochs_large_model/saved_epoch_1a/' + model_name + '/' + str(loop_index) + '/' 
             epoch_save_name = epoch_save_location + '/epoch_info.tsv'
 
-            result_save_location = '../15_epochs_large_model/saved_data_1a/' + model_name + '/' + str(loop_index) + '/'
+            result_save_location = '../2nd_try_15_epochs_large_model/saved_data_1a/' + model_name + '/' + str(loop_index) + '/'
 
-            report_result_save_location = '../15_epochs_large_model/saved_report_1a/' + model_name + '/' + str(loop_index)
+            report_result_save_location = '../2nd_try_15_epochs_large_model/saved_report_1a/' + model_name + '/' + str(loop_index)
 
             unformatted_result_save_location = result_save_location + 'unformatted_result.tsv'
             formatted_result_save_location = result_save_location + 'formatted_result.tsv'
@@ -418,11 +418,11 @@ if __name__ == '__main__':
 
     #saving all results into tsv
 
-    os.makedirs('../15_epochs_large_model/validating_statistics/', exist_ok=True)
-    all_best_dev_acc.to_csv('../15_epochs_large_model/validating_statistics/all_best_dev_acc.tsv', sep='\t')
-    all_best_f1_score.to_csv('../15_epochs_large_model/validating_statistics/all_best_f1_score.tsv', sep='\t')
-    all_best_precision.to_csv('../15_epochs_large_model/validating_statistics/all_best_precision.tsv', sep='\t')
-    all_best_recall.to_csv('../15_epochs_large_model/validating_statistics/all_best_recall.tsv', sep='\t')
+    os.makedirs('../2nd_try_15_epochs_large_model/validating_statistics/', exist_ok=True)
+    all_best_dev_acc.to_csv('../2nd_try_15_epochs_large_model/validating_statistics/all_best_dev_acc.tsv', sep='\t')
+    all_best_f1_score.to_csv('../2nd_try_15_epochs_large_model/validating_statistics/all_best_f1_score.tsv', sep='\t')
+    all_best_precision.to_csv('../2nd_try_15_epochs_large_model/validating_statistics/all_best_precision.tsv', sep='\t')
+    all_best_recall.to_csv('../2nd_try_15_epochs_large_model/validating_statistics/all_best_recall.tsv', sep='\t')
 
     train_val_end_time = time.time()
 
@@ -430,7 +430,7 @@ if __name__ == '__main__':
     print("Everything successfully completed")
     print("Time to complete:", total_time)
 
-    with open('../15_epochs_large_model/validating_statistics/time.txt', 'w') as file:
+    with open('../2nd_try_15_epochs_large_model/validating_statistics/time.txt', 'w') as file:
         file.write("Time to complete: ")
         file.write(str(total_time))
         file.write(" mins")
