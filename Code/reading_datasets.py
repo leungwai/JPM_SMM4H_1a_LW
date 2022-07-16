@@ -31,7 +31,7 @@ def read_test(location, split = 'test'):
         for i, row in enumerate(csv_reader):
             if i > 0:
                 tweet_id = row[0]
-                sentence = row[2].strip()
+                sentence = row[1].strip()
                 data.append((tweet_id, sentence))
 
     return data
