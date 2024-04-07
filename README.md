@@ -24,7 +24,7 @@ The model ensembling code is adapted from \(Jayanthi and Gupta, 2021\) method of
 | ---: | :---: | :---: | :---: |
 | Task 1a | 0.838 | 0.803 | 0.877 | 
 
-> Placed **2nd** of 29
+> Placed **2nd** of 29 submissions
 
 ## Special Thanks
 - **Akshat Gupta**, for being a great project manager and guiding us through NLP from start to finish
