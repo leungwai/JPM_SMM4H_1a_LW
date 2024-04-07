@@ -8,8 +8,7 @@ This repo is training, ensembling and analysis code for the BERT Model used for 
 
 _\#NLP \#BERT \#ML \#Python_
 
-### See Also
-Subtask 1b | Subtask 1c | Subtask 2a | Subtask 2b | Subtask 5 
+**See Also:** Subtask 1b | Subtask 1c | Subtask 2a | Subtask 2b | Subtask 5 
 
 ## Premise
 The need to use Natural Language Processing \(NLP\) on social media posts is increasingly important as its userbase grows to guage public perception on issues, such as sentiments during the COVID-19 pandemic. 
