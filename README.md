@@ -23,6 +23,6 @@ The datasets were trained on variants top of the BERT language model \(Devlin et
 
 **Results**
 | Task | F1-Score | Precision | Recall | 
-| --- | --- | --- | --- |
+| ---: | :---: | :---: | :---: |
 | Task 1a | 0.838 | 0.803 | 0.877 | 
 
