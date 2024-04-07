@@ -17,12 +17,14 @@ Task 1 is a pharmacoviligance task, which Subtask 1A consists of classifying whe
 ## Methodology
 The datasets were trained on variants top of the BERT language model \(Devlin et al., 2019\) (RoBERTa<sub>BASE</sub>, RoBERTa<sub>LARGE</sub>, BERT<sub>BASE</sub>-uncased, BERT<sub>LARGE</sub>-uncased. 
 
-The model ensembling code is adapted from \(Jayanthi and Gupta, 2021\) method of model ensembling. 
+The model ensembling code is adapted from \(Jayanthi and Gupta, 2021\) method of model ensembling. Various methods of ensembling were experimented, including majority-vote, weighted and unweighted. Ultimately, a majority ensemble of RoBERTa<sub>LARGE</sub> models were used. 
 
 ## Results 
 | Task | F1-Score | Precision | Recall | 
 | ---: | :---: | :---: | :---: |
 | Task 1a | 0.838 | 0.803 | 0.877 | 
+
+> Placed **2nd** of 29
 
 ## Special Thanks
 - **Akshat Gupta**, for being a great project manager and guiding us through NLP from start to finish
