@@ -22,6 +22,7 @@ The datasets were trained on variants top of the BERT language model \(Devlin et
 The model ensembling code is adapted from \(Jayanthi and Gupta, 2021\) method of model ensembling. Various methods of ensembling were experimented, including majority-vote, weighted and unweighted. Ultimately, a majority ensemble of RoBERTa<sub>LARGE</sub> models were used. 
 
 ## Results 
+**Performance Metric for Subtask 1a**
 | Task | F1-Score | Precision | Recall | 
 | ---: | :---: | :---: | :---: |
 | Task 1a | 0.693 | 0.772 | 0.629 | 
