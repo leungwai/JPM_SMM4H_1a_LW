@@ -24,7 +24,7 @@ The model ensembling code is adapted from \(Jayanthi and Gupta, 2021\) method of
 ## Results 
 | Task | F1-Score | Precision | Recall | 
 | ---: | :---: | :---: | :---: |
-| Task 1a | 0.838 | 0.803 | 0.877 | 
+| Task 1a | 0.693 | 0.772 | 0.629 | 
 
 > Placed **2nd** of 29 submissions
 
